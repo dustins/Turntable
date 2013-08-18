@@ -152,10 +152,12 @@ public final class Room {
 		 * @return The User
 		 */
 		public User getByID(String userid) {
-			for (int i = 0; i < userList.size(); i++) {
-				if (userid.equals(userList.get(i).getID()))
-					return userList.get(i);
-			}
+            for (User user : userList.values()) {
+                if (user.getID().equals(userid)) {
+                    return user;
+                }
+            }
+
 			return null;
 		}
 
