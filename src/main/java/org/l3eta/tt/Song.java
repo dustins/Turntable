@@ -1,5 +1,6 @@
 package org.l3eta.tt;
 
+import com.google.common.base.Objects;
 import org.l3eta.tt.util.Message;
 
 public class Song {
@@ -85,4 +86,21 @@ public class Song {
 	protected void addSnag() {
 		snag++;
 	}
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        final Song other = (Song) obj;
+        return Objects.equal(this.getID(), other.getID());
+    }
 }

@@ -1,17 +1,19 @@
 package org.l3eta.tt;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.mongodb.BasicDBList;
+import org.apache.commons.lang.ArrayUtils;
 import org.l3eta.tt.util.Message;
 
-import com.mongodb.BasicDBList;
+import java.util.*;
 
 public final class Room {
 	public Users users;
 	private HashMap<String, User> userList;
+    public SongLog songLog;
+    private LinkedList<Song> songList;
 	private List<User> djs;
 	private Bot bot;
 	private Song currentSong;
@@ -22,11 +24,19 @@ public final class Room {
 		this.bot = bot;
 		users = new Users();
 		userList = new HashMap<String, User>();
+        songLog = new SongLog();
+        songList = new LinkedList<Song>();
 		djs = new ArrayList<User>();
 	}
 
 	public void setData(RoomData data) {
 		users.addUsers(data.getUsers());
+        Song[] songs = data.getSongs();
+        if (data.getSong() != null && data.getSong().equals(songs[songs.length-1])) {
+            songs = (Song[])ArrayUtils.remove(songs, songs.length - 1);
+        }
+        songLog.addSongs(songs);
+
 		if (data.getDjCount() > 0) {
 			for (String d : data.getDjs()) {
 				addDj(getUsers().getByID(d));
@@ -183,13 +193,41 @@ public final class Room {
 		}
 	}
 
+    public class SongLog {
+        public ImmutableList<Song> getList() {
+            return new ImmutableList.Builder<Song>().addAll(songList).build();
+        }
+
+        public void addSong(Song song) {
+            songList.addFirst(song);
+
+            if (songList.size() > 40) {
+                songList.removeLast();
+            }
+        }
+
+        public void addSongs(Song[] songs) {
+            for (Song song : songs) {
+                this.addSong(song);
+            }
+        }
+    }
+
 	protected void setCurrentSong(Song song) {
+        if (song != null) {
+            songLog.addSong(song);
+        }
+
 		this.currentSong = song;
 	}
 
 	public Users getUsers() {
 		return users;
 	}
+
+    public SongLog getSongLog() {
+        return songLog;
+    }
 
 	public String getID() {
 		return id;
@@ -211,6 +249,7 @@ public final class Room {
 		private Song song;
 		private String chatServer;
 		private int chatPort;
+        private List<Song> songs;
 
 		public RoomData(Message json) {
 			this(json, false);
@@ -219,6 +258,8 @@ public final class Room {
 		public RoomData(Message json, boolean isDGR) {
 			// TODO add in sticker placements
 			users = new ArrayList<User>();
+            songs = Lists.newArrayList();
+
 			if (!isDGR) {
 				if (json.getBoolean("success")) {
 					Message to;
@@ -253,7 +294,9 @@ public final class Room {
 					maxUsers = to.getInt("max_size");
 					// votelog = temp.get("votelog");
 					// stickerPlacements = temp.get("sticker_placements");
-					// songlog = temp.get("songlog");
+                    for (Message song : to.getMessageList("songlog")) {
+                        songs.add(new Song(song, false));
+                    }
 
 				}
 			} else {
@@ -287,9 +330,12 @@ public final class Room {
 				djCount = to.getInt("djcount");
 				maxUsers = to.getInt("max_size");
 				// votelog = temp.get("votelog");
-				// stickerPlacements = temp.get("sticker_placements");
-				// songlog = temp.get("songlog");
-				for (Message user : json.getMessageList("users")) {
+                // stickerPlacements = temp.get("sticker_placements");
+                for (Message song : to.getMessageList("songlog")) {
+                    songs.add(new Song(song, false));
+                }
+
+                for (Message user : json.getMessageList("users")) {
 					User u = new User(user);
 					users.add(u);
 				}
@@ -392,5 +438,8 @@ public final class Room {
 			return song;
 		}
 
+        public Song[] getSongs() {
+            return songs.toArray(new Song[]{});
+        }
 	}
 }

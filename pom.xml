@@ -8,6 +8,12 @@
     <artifactId>turntable</artifactId>
     <version>3.0.1</version>
 
+    <properties>
+        <!-- common libraries -->
+        <guava.version>14.0.1</guava.version>
+        <commons-lang.version>2.6</commons-lang.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.mongodb</groupId>
@@ -28,6 +34,18 @@
             <groupId>com.thoughtworks.xstream</groupId>
             <artifactId>xstream</artifactId>
             <version>1.4.4</version>
+        </dependency>
+
+        <!-- common libraries -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>${commons-lang.version}</version>
         </dependency>
     </dependencies>
 
