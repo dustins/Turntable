@@ -1,10 +1,10 @@
 package org.l3eta.tt;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.mongodb.BasicDBList;
 import org.apache.commons.lang.ArrayUtils;
+import org.l3eta.tt.user.Rank;
 import org.l3eta.tt.util.Message;
 
 import java.util.*;
@@ -15,6 +15,8 @@ public final class Room {
     public SongLog songLog;
     private LinkedList<Song> songList;
 	private List<User> djs;
+    private String creatorID;
+    private List<String> moderatorIDs;
 	private Bot bot;
 	private Song currentSong;
 	private String id;
@@ -27,10 +29,14 @@ public final class Room {
         songLog = new SongLog();
         songList = new LinkedList<Song>();
 		djs = new ArrayList<User>();
+        moderatorIDs = Lists.newArrayList();
 	}
 
 	public void setData(RoomData data) {
+        creatorID = data.creator.getID();
+        moderatorIDs = Arrays.asList(data.getMods());
 		users.addUsers(data.getUsers());
+
         Song[] songs = data.getSongs();
         if (data.getSong() != null && data.getSong().equals(songs[songs.length-1])) {
             songs = (Song[])ArrayUtils.remove(songs, songs.length - 1);
@@ -42,8 +48,9 @@ public final class Room {
 				addDj(getUsers().getByID(d));
 			}
 		}
+
 		setCurrentSong(data.getSong());
-	}
+    }
 
 	protected void setName(String name) {
 		this.name = name;
@@ -102,10 +109,19 @@ public final class Room {
 		 */
 		public void addUser(User user) {
 			String id = user.getID();
-			if (userList.containsKey(id))
-				return;
-			userList.put(id, user);
-			bot.getDatabase().getUserRank(id);
+			if (!userList.containsKey(id)) {
+			    userList.put(id, user);
+            }
+
+            user = userList.get(id);
+            bot.getDatabase().getUserRank(id);
+
+            if (creatorID != null && creatorID.equals(user.getID())) {
+                user.setRank(Rank.OWNER);
+            }
+            else if (moderatorIDs != null && moderatorIDs.contains(user.getID())) {
+                user.setRank(Rank.MOD);
+            }
 		}
 
 		/**
@@ -426,7 +442,7 @@ public final class Room {
 			return djFull;
 		}
 
-		public User getCreator() {
+        public User getCreator() {
 			return creator;
 		}
 
