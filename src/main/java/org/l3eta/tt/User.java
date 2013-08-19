@@ -3,6 +3,7 @@ package org.l3eta.tt;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.google.common.base.Objects;
 import org.l3eta.tt.Enums.Laptop;
 import org.l3eta.tt.Enums.Status;
 import org.l3eta.tt.user.Rank;
@@ -164,4 +165,21 @@ public class User {
 	public boolean hasAttachment(String key) {
 		return attachments.containsKey(key);
 	}
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        final User other = (User) obj;
+        return Objects.equal(this.id, other.id);
+    }
 }
