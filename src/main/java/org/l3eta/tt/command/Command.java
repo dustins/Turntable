@@ -1,24 +1,31 @@
 package org.l3eta.tt.command;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import org.apache.commons.lang.ArrayUtils;
 import org.l3eta.tt.Bot;
 import org.l3eta.tt.User;
 import org.l3eta.tt.event.ChatEvent.ChatType;
 import org.l3eta.tt.user.Rank;
 
+import java.util.Arrays;
+import java.util.Set;
+
 public abstract class Command {
 	private String name;
-	private Rank rank = Rank.USER;
-	protected Bot bot;
+	private Set<Rank> rank = Sets.newHashSet(Rank.USER);
+    protected Bot bot;
 
 	public Command(String name) {
 		this.name = name;
 	}
 
-	public void setRank(Rank rank) {
-		this.rank = rank;
+	public void setRank(Rank...ranks) {
+		this.rank.clear();
+        this.rank.addAll(Lists.newArrayList(ranks));
 	}
 
-	public Rank getRank() {
+	public Set<Rank> getRank() {
 		return rank;
 	}
 
@@ -31,7 +38,7 @@ public abstract class Command {
 	}
 
 	public boolean canExecute(User user) {
-		return user.getRank().equals(rank);
+        return this.getRank().contains(user.getRank());
 	}
 
 	public void load() {
