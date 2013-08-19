@@ -1,6 +1,9 @@
 package org.l3eta.tt;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Optional;
+import org.joda.time.Duration;
+import org.joda.time.LocalDateTime;
 import org.l3eta.tt.util.Message;
 
 public class Song {
@@ -8,6 +11,9 @@ public class Song {
 	private User user;
 	private String id;
 	private Integer up, down, snag;
+    private Duration duration;
+    private LocalDateTime startTime;
+
 
 	// Meta / Useless
 	private String artist, genre, name, album;
@@ -15,12 +21,17 @@ public class Song {
 	public Song(Message message, boolean isPlaylistSong) {
 		if(!isPlaylistSong)
 			this.user = room.getUsers().getByID(message.getString("djid"));
+        if (message.has("starttime")) {
+            Double startTime = message.getDouble("starttime") * 1000d;
+            this.startTime = new LocalDateTime(startTime.longValue());
+        }
 		this.id = message.getString("_id");
 		message = message.getSubObject("metadata");
 		this.name = message.getString("song");
 		this.artist = message.getString("artist");
 		this.album = message.getString("album");
 		this.genre = message.getString("genre");
+        this.duration = new Duration(message.getInt("length")*1000);
 		snag = 0;
 		up = 0;
 		down = 0;
@@ -38,7 +49,15 @@ public class Song {
 		return name;
 	}
 
-	public String getGenre() {
+    public Optional<LocalDateTime> getStartTime() {
+        return Optional.fromNullable(startTime);
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public String getGenre() {
 		return genre;
 	}
 

@@ -12,6 +12,7 @@
         <!-- common libraries -->
         <guava.version>14.0.1</guava.version>
         <commons-lang.version>2.6</commons-lang.version>
+        <joda-time.version>2.2</joda-time.version>
     </properties>
 
     <dependencies>
@@ -41,6 +42,11 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>${joda-time.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>

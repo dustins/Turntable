@@ -2,6 +2,7 @@ package org.l3eta.tt;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.mongodb.BasicDBList;
 import org.apache.commons.lang.ArrayUtils;
 import org.l3eta.tt.user.Rank;
@@ -14,7 +15,7 @@ public final class Room {
 	private HashMap<String, User> userList;
     public SongLog songLog;
     private LinkedList<Song> songList;
-	private List<User> djs;
+	private Set<User> djs;
     private String creatorID;
     private List<String> moderatorIDs;
 	private Bot bot;
@@ -28,7 +29,7 @@ public final class Room {
 		userList = new HashMap<String, User>();
         songLog = new SongLog();
         songList = new LinkedList<Song>();
-		djs = new ArrayList<User>();
+		djs = Sets.newHashSet();
         moderatorIDs = Lists.newArrayList();
 	}
 
@@ -36,6 +37,9 @@ public final class Room {
         creatorID = data.creator.getID();
         moderatorIDs = Arrays.asList(data.getMods());
 		users.addUsers(data.getUsers());
+        for (String userID : data.getDjs()) {
+            this.djs.add(this.users.getByID(userID));
+        }
 
         Song[] songs = data.getSongs();
         if (data.getSong() != null && data.getSong().equals(songs[songs.length-1])) {
